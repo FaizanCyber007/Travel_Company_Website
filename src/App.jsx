@@ -9,6 +9,7 @@ import Destinations from "./pages/Destinations";
 import Tours from "./pages/Tours";
 import Gallery from "./pages/Gallery";
 import Blog from "./pages/Blog";
+import PhotoUpload from "./pages/PhotoUpload";
 import NotFound from "./pages/NotFound";
 
 export default function App() {
@@ -21,6 +22,7 @@ export default function App() {
           <Route path="/destinations" element={<Destinations />} />
           <Route path="/tours" element={<Tours />} />
           <Route path="/gallery" element={<Gallery />} />
+          <Route path="/gallery/upload" element={<PhotoUpload />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />

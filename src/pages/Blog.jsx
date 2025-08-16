@@ -17,6 +17,7 @@ import {
 export default function Blog() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const [visibleCount, setVisibleCount] = useState(10);
 
   const categories = [
     { id: "all", name: "All Posts" },
@@ -149,6 +150,126 @@ export default function Blog() {
       comments: 28,
       featured: false,
     },
+    {
+      id: 7,
+      title: "Solo Female Travel: Safety Tips and Empowerment",
+      slug: "solo-female-travel-safety-tips",
+      excerpt:
+        "Comprehensive guide for solo female travelers. Safety strategies, confidence building, and amazing destinations perfect for solo adventures.",
+      category: "tips",
+      author: "Emma Rodriguez",
+      authorImage:
+        "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=150&h=150&auto=format&fit=crop",
+      date: "2025-01-01",
+      readTime: "8 min read",
+      image:
+        "https://images.unsplash.com/photo-1469474968028-56623f02e42e?q=80&w=800&auto=format&fit=crop",
+      tags: ["Solo Travel", "Safety", "Women Travel"],
+      views: 1950,
+      likes: 234,
+      comments: 41,
+      featured: false,
+    },
+    {
+      id: 8,
+      title: "Hidden Gems of Northern Italy",
+      slug: "hidden-gems-northern-italy",
+      excerpt:
+        "Discover lesser-known treasures beyond Venice and Milan. Charming villages, local cuisine, and authentic Italian experiences.",
+      category: "destinations",
+      author: "Marco Bellini",
+      authorImage:
+        "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=150&h=150&auto=format&fit=crop",
+      date: "2024-12-28",
+      readTime: "11 min read",
+      image:
+        "https://images.unsplash.com/photo-1523906834658-6e24ef2386f9?q=80&w=800&auto=format&fit=crop",
+      tags: ["Italy", "Hidden Gems", "Europe"],
+      views: 1420,
+      likes: 178,
+      comments: 19,
+      featured: false,
+    },
+    {
+      id: 9,
+      title: "Budget Travel Hacks: See More, Spend Less",
+      slug: "budget-travel-hacks-spend-less",
+      excerpt:
+        "Proven strategies to stretch your travel budget. Flight deals, accommodation tips, and money-saving secrets from seasoned travelers.",
+      category: "tips",
+      author: "Jake Anderson",
+      authorImage:
+        "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=150&h=150&auto=format&fit=crop",
+      date: "2024-12-25",
+      readTime: "6 min read",
+      image:
+        "https://images.unsplash.com/photo-1553708881-112abc53fe54?q=80&w=800&auto=format&fit=crop",
+      tags: ["Budget Travel", "Money Saving", "Travel Hacks"],
+      views: 2890,
+      likes: 342,
+      comments: 67,
+      featured: false,
+    },
+    {
+      id: 10,
+      title: "Digital Nomad Guide: Working While Traveling",
+      slug: "digital-nomad-guide-working-traveling",
+      excerpt:
+        "Complete guide to becoming a digital nomad. Best destinations, essential tools, and maintaining work-life balance on the road.",
+      category: "tips",
+      author: "Lisa Chen",
+      authorImage:
+        "https://images.unsplash.com/photo-1494790108755-2616b612b786?q=80&w=150&h=150&auto=format&fit=crop",
+      date: "2024-12-20",
+      readTime: "13 min read",
+      image:
+        "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=800&auto=format&fit=crop",
+      tags: ["Digital Nomad", "Remote Work", "Lifestyle"],
+      views: 3200,
+      likes: 456,
+      comments: 89,
+      featured: false,
+    },
+    {
+      id: 11,
+      title: "Wildlife Safari: Best African Destinations",
+      slug: "wildlife-safari-african-destinations",
+      excerpt:
+        "Ultimate safari guide covering Kenya, Tanzania, and South Africa. When to visit, what to pack, and unforgettable wildlife encounters.",
+      category: "adventure",
+      author: "David Thompson",
+      authorImage:
+        "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=150&h=150&auto=format&fit=crop",
+      date: "2024-12-15",
+      readTime: "10 min read",
+      image:
+        "https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?q=80&w=800&auto=format&fit=crop",
+      tags: ["Safari", "Wildlife", "Africa"],
+      views: 1750,
+      likes: 203,
+      comments: 35,
+      featured: false,
+    },
+    {
+      id: 12,
+      title: "Mediterranean Cuisine Trail",
+      slug: "mediterranean-cuisine-trail",
+      excerpt:
+        "A foodie's journey through Mediterranean flavors. From Spanish tapas to Greek mezze, discover the region's culinary treasures.",
+      category: "food",
+      author: "Sofia Greco",
+      authorImage:
+        "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=150&h=150&auto=format&fit=crop",
+      date: "2024-12-10",
+      readTime: "9 min read",
+      image:
+        "https://images.unsplash.com/photo-1514516345957-556ca7d90a29?q=80&w=800&auto=format&fit=crop",
+      tags: ["Mediterranean", "Food", "Cuisine"],
+      views: 1680,
+      likes: 192,
+      comments: 26,
+      featured: false,
+    },
   ];
 
   const filteredPosts = blogPosts.filter((post) => {
@@ -162,6 +283,22 @@ export default function Blog() {
 
   const featuredPost = blogPosts.find((post) => post.featured);
   const regularPosts = filteredPosts.filter((post) => !post.featured);
+  const visiblePosts = regularPosts.slice(0, visibleCount);
+  const hasMorePosts = visibleCount < regularPosts.length;
+
+  const loadMorePosts = () => {
+    setVisibleCount((prev) => prev + 10);
+  };
+
+  const handleCategoryChange = (categoryId) => {
+    setSelectedCategory(categoryId);
+    setVisibleCount(10);
+  };
+
+  const handleSearchChange = (term) => {
+    setSearchTerm(term);
+    setVisibleCount(10);
+  };
 
   return (
     <div className="min-h-screen bg-dark-900 pt-8">
@@ -195,7 +332,7 @@ export default function Blog() {
                   type="text"
                   placeholder="Search articles..."
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={(e) => handleSearchChange(e.target.value)}
                   className="w-full pl-12 pr-4 py-3 bg-dark-700 border border-dark-600 rounded-lg text-white placeholder-dark-400 focus:border-primary-500 focus:outline-none"
                 />
               </div>
@@ -206,7 +343,7 @@ export default function Blog() {
               {categories.map((category) => (
                 <button
                   key={category.id}
-                  onClick={() => setSelectedCategory(category.id)}
+                  onClick={() => handleCategoryChange(category.id)}
                   className={`px-4 py-2 rounded-lg transition-all ${
                     selectedCategory === category.id
                       ? "bg-primary-600 text-white"
@@ -333,7 +470,7 @@ export default function Blog() {
 
           {regularPosts.length > 0 ? (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {regularPosts.map((post) => (
+              {visiblePosts.map((post) => (
                 <article key={post.id} className="card card-hover group">
                   <div className="relative overflow-hidden">
                     <img
@@ -424,10 +561,11 @@ export default function Blog() {
           )}
 
           {/* Load More Button */}
-          {regularPosts.length > 0 && (
+          {hasMorePosts && (
             <div className="text-center mt-12">
-              <button className="btn-primary px-8 py-3">
-                Load More Articles
+              <button onClick={loadMorePosts} className="btn-primary px-8 py-3">
+                Load More Articles ({regularPosts.length - visibleCount}{" "}
+                remaining)
               </button>
             </div>
           )}

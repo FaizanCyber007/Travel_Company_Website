@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faPlane,
-  faMapMarkedAlt,
+  faMapMarkerAlt,
   faHeart,
   faUsers,
   faStar,
@@ -19,15 +20,104 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import DestinationCard from "../components/DestinationCard";
 import TestimonialCard from "../components/TestimonialCard";
+import BookingModal from "../components/BookingModal";
+import DestinationDetailsModal from "../components/DestinationDetailsModal";
 
 export default function Home() {
+  const navigate = useNavigate();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isVisible, setIsVisible] = useState({});
+  const [bookingModal, setBookingModal] = useState({
+    isOpen: false,
+    destination: null,
+  });
+  const [detailsModal, setDetailsModal] = useState({
+    isOpen: false,
+    destination: null,
+  });
 
   const heroImages = [
     "https://images.unsplash.com/photo-1488646953014-85cb44e25828?q=80&w=1600&auto=format&fit=crop",
     "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?q=80&w=1600&auto=format&fit=crop",
     "https://images.unsplash.com/photo-1501785888041-af3ef285b470?q=80&w=1600&auto=format&fit=crop",
+  ];
+
+  // Destination data with detailed information
+  const destinations = [
+    {
+      id: 1,
+      title: "Maldives Paradise",
+      location: "Indian Ocean",
+      price: "From $2,999",
+      rating: "4.9",
+      duration: "7 Days",
+      img: "https://images.unsplash.com/photo-1573843981267-be1999ff37cd?q=80&w=800&auto=format&fit=crop",
+      description:
+        "Escape to tropical paradise in the Maldives, where crystal-clear turquoise waters meet pristine white sand beaches. Experience overwater bungalows, world-class diving, and unparalleled luxury in one of the world's most exclusive destinations.",
+      bestTime: "November to April for dry weather and perfect conditions",
+    },
+    {
+      id: 2,
+      title: "Swiss Alps Adventure",
+      location: "Switzerland",
+      price: "From $1,899",
+      rating: "4.8",
+      duration: "8 Days",
+      img: "https://images.unsplash.com/photo-1531366936337-7c912a4589a7?q=80&w=800&auto=format&fit=crop",
+      description:
+        "Journey through the majestic Swiss Alps, featuring snow-capped peaks, alpine lakes, and charming mountain villages. Experience scenic train rides, hiking trails, and traditional Swiss hospitality in breathtaking natural settings.",
+      bestTime: "June to September for hiking, December to March for skiing",
+    },
+    {
+      id: 3,
+      title: "Tokyo Culture Tour",
+      location: "Japan",
+      price: "From $2,499",
+      rating: "4.9",
+      duration: "10 Days",
+      img: "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?q=80&w=800&auto=format&fit=crop",
+      description:
+        "Immerse yourself in the fascinating blend of ancient traditions and modern innovation in Tokyo. Explore temples, experience authentic cuisine, witness cherry blossoms, and discover the unique culture of Japan's capital city.",
+      bestTime:
+        "March to May for cherry blossoms, September to November for mild weather",
+    },
+    {
+      id: 4,
+      title: "Santorini Sunset",
+      location: "Greece",
+      price: "From $1,699",
+      rating: "4.7",
+      duration: "6 Days",
+      img: "https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?q=80&w=800&auto=format&fit=crop",
+      description:
+        "Discover the romantic beauty of Santorini with its iconic white-washed buildings, blue-domed churches, and spectacular sunsets. Enjoy wine tasting, explore ancient ruins, and relax on unique volcanic beaches.",
+      bestTime: "April to October for warm weather and fewer crowds",
+    },
+    {
+      id: 5,
+      title: "Safari Experience",
+      location: "Kenya",
+      price: "From $3,299",
+      rating: "4.8",
+      duration: "9 Days",
+      img: "https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?q=80&w=800&auto=format&fit=crop",
+      description:
+        "Embark on an unforgettable African safari adventure in Kenya's world-renowned national parks. Witness the Great Migration, encounter the Big Five, and experience the raw beauty of African wildlife in their natural habitat.",
+      bestTime:
+        "July to October for Great Migration, January to March for calving season",
+    },
+    {
+      id: 6,
+      title: "Northern Lights",
+      location: "Iceland",
+      price: "From $2,199",
+      rating: "4.9",
+      duration: "8 Days",
+      img: "https://images.unsplash.com/photo-1531366936337-7c912a4589a7?q=80&w=800&auto=format&fit=crop",
+      description:
+        "Chase the magical Northern Lights across Iceland's dramatic landscapes. Explore glaciers, geysers, waterfalls, and hot springs while searching for the dancing auroras in the dark Arctic sky.",
+      bestTime: "September to March for Northern Lights visibility",
+    },
   ];
 
   useEffect(() => {
@@ -36,6 +126,13 @@ export default function Home() {
     }, 5000);
     return () => clearInterval(interval);
   }, []);
+
+  const openBookingModal = () => {
+    setBookingModal({
+      isOpen: true,
+      destination: { name: "Dream Vacation Package", price: "From $1,999" },
+    });
+  };
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -79,7 +176,7 @@ export default function Home() {
 
   const stats = [
     { number: "50K+", label: "Happy Travelers", icon: faUsers },
-    { number: "1000+", label: "Destinations", icon: faMapMarkedAlt },
+    { number: "1000+", label: "Destinations", icon: faMapMarkerAlt },
     { number: "15+", label: "Years Experience", icon: faStar },
     { number: "24/7", label: "Support", icon: faPhoneAlt },
   ];
@@ -129,12 +226,15 @@ export default function Home() {
                   <FontAwesomeIcon icon={faCompass} className="mr-2" />
                   Explore Destinations
                 </Link>
-                <button className="btn-secondary text-lg px-8 py-4 group">
+                <button
+                  onClick={openBookingModal}
+                  className="btn-secondary text-lg px-8 py-4 group"
+                >
                   <FontAwesomeIcon
-                    icon={faPlay}
+                    icon={faCalendarAlt}
                     className="mr-2 group-hover:scale-110 transition-transform"
                   />
-                  Watch Video
+                  Book Now
                 </button>
               </div>
 
@@ -168,8 +268,8 @@ export default function Home() {
                       <option>3+ Guests</option>
                     </select>
                   </div>
-                  <button className="btn-accent">
-                    <FontAwesomeIcon icon={faMapMarkedAlt} className="mr-2" />
+                  <button onClick={openBookingModal} className="btn-accent">
+                    <FontAwesomeIcon icon={faMapMarkerAlt} className="mr-2" />
                     Search
                   </button>
                 </div>
@@ -253,48 +353,31 @@ export default function Home() {
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-            <DestinationCard
-              title="Maldives Paradise"
-              location="Indian Ocean"
-              price="From $2,999"
-              rating="4.9"
-              img="https://images.unsplash.com/photo-1573843981267-be1999ff37cd?q=80&w=800&auto=format&fit=crop"
-            />
-            <DestinationCard
-              title="Swiss Alps Adventure"
-              location="Switzerland"
-              price="From $1,899"
-              rating="4.8"
-              img="https://images.unsplash.com/photo-1531366936337-7c912a4589a7?q=80&w=800&auto=format&fit=crop"
-            />
-            <DestinationCard
-              title="Tokyo Culture Tour"
-              location="Japan"
-              price="From $2,499"
-              rating="4.9"
-              img="https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?q=80&w=800&auto=format&fit=crop"
-            />
-            <DestinationCard
-              title="Santorini Sunset"
-              location="Greece"
-              price="From $1,699"
-              rating="4.7"
-              img="https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?q=80&w=800&auto=format&fit=crop"
-            />
-            <DestinationCard
-              title="Safari Experience"
-              location="Kenya"
-              price="From $3,299"
-              rating="4.8"
-              img="https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?q=80&w=800&auto=format&fit=crop"
-            />
-            <DestinationCard
-              title="Northern Lights"
-              location="Iceland"
-              price="From $2,199"
-              rating="4.9"
-              img="https://images.unsplash.com/photo-1531366936337-7c912a4589a7?q=80&w=800&auto=format&fit=crop"
-            />
+            {destinations.map((destination) => (
+              <DestinationCard
+                key={destination.id}
+                title={destination.title}
+                location={destination.location}
+                price={destination.price}
+                rating={destination.rating}
+                img={destination.img}
+                onBook={() =>
+                  setBookingModal({
+                    isOpen: true,
+                    destination: {
+                      name: destination.title,
+                      price: destination.price,
+                    },
+                  })
+                }
+                onViewDetails={() =>
+                  setDetailsModal({
+                    isOpen: true,
+                    destination: destination,
+                  })
+                }
+              />
+            ))}
           </div>
 
           <div className="text-center">
@@ -368,13 +451,13 @@ export default function Home() {
               WanderLux. Your perfect vacation is just one click away.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link
-                to="/contact"
+              <button
+                onClick={openBookingModal}
                 className="bg-white text-primary-600 px-8 py-4 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
               >
                 <FontAwesomeIcon icon={faCalendarAlt} className="mr-2" />
                 Plan My Trip
-              </Link>
+              </button>
               <Link
                 to="/tours"
                 className="border-2 border-white text-white px-8 py-4 rounded-lg font-semibold hover:bg-white hover:text-primary-600 transition-colors"
@@ -385,6 +468,32 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Booking Modal */}
+      {bookingModal.isOpen && (
+        <BookingModal
+          isOpen={bookingModal.isOpen}
+          onClose={() => setBookingModal({ isOpen: false, destination: null })}
+          destination={bookingModal.destination}
+        />
+      )}
+
+      {/* Destination Details Modal */}
+      <DestinationDetailsModal
+        isOpen={detailsModal.isOpen}
+        onClose={() => setDetailsModal({ isOpen: false, destination: null })}
+        destination={detailsModal.destination}
+        onBook={() => {
+          setDetailsModal({ isOpen: false, destination: null });
+          setBookingModal({
+            isOpen: true,
+            destination: {
+              name: detailsModal.destination?.title,
+              price: detailsModal.destination?.price,
+            },
+          });
+        }}
+      />
     </div>
   );
 }

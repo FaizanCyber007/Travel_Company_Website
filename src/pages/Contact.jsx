@@ -39,23 +39,38 @@ export default function Contact() {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Simulate form submission
-    setTimeout(() => {
-      alert(
-        "Thank you for your message! We will get back to you within 24 hours."
-      );
-      setFormData({
-        name: "",
-        email: "",
-        phone: "",
-        subject: "general",
-        travelDates: "",
-        travelers: "1",
-        budget: "",
-        message: "",
+    try {
+      const response = await fetch("http://localhost:5000/api/contact", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
       });
+
+      const result = await response.json();
+
+      if (result.success) {
+        alert(result.message);
+        setFormData({
+          name: "",
+          email: "",
+          phone: "",
+          subject: "general",
+          travelDates: "",
+          travelers: "1",
+          budget: "",
+          message: "",
+        });
+      } else {
+        alert(result.message || "An error occurred. Please try again.");
+      }
+    } catch (error) {
+      console.error("Contact form error:", error);
+      alert("An error occurred. Please try again later.");
+    } finally {
       setIsSubmitting(false);
-    }, 2000);
+    }
   };
 
   const handleChange = (e) => {
@@ -70,14 +85,14 @@ export default function Contact() {
       icon: faPhone,
       title: "Call Us",
       description: "Speak with our travel experts",
-      contact: "+1 (234) 567-890",
-      hours: "Mon-Fri: 9AM-6PM EST",
+      contact: "+92 332 043 6737",
+      hours: "Mon-Fri: 9AM-6PM PKT",
     },
     {
       icon: faEnvelope,
       title: "Email Us",
       description: "Get detailed travel information",
-      contact: "info@wanderlux.com",
+      contact: "faizanjaved246@gmail.com",
       hours: "Response within 24 hours",
     },
     {
@@ -402,27 +417,29 @@ export default function Contact() {
                       {
                         icon: faFacebook,
                         color: "hover:text-blue-500",
-                        href: "#",
+                        href: "https://www.facebook.com/faizan.javed.7758235",
                       },
                       {
                         icon: faTwitter,
                         color: "hover:text-blue-400",
-                        href: "#",
+                        href: "https://x.com/FaizanJaved246",
                       },
                       {
                         icon: faInstagram,
                         color: "hover:text-pink-500",
-                        href: "#",
+                        href: "https://www.instagram.com/faizanjaved246/",
                       },
                       {
                         icon: faLinkedin,
                         color: "hover:text-blue-600",
-                        href: "#",
+                        href: "https://www.linkedin.com/in/faizan-javed-b0267426a/",
                       },
                     ].map((social, index) => (
                       <a
                         key={index}
                         href={social.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
                         className={`w-10 h-10 bg-dark-700 rounded-full flex items-center justify-center text-dark-300 ${social.color} transition-all duration-300 hover:scale-110`}
                       >
                         <FontAwesomeIcon icon={social.icon} />
@@ -494,7 +511,7 @@ export default function Contact() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <a
-                href="tel:+1234567890"
+                href="tel:+923320436737"
                 className="btn-secondary bg-white text-primary-600 hover:bg-gray-100 px-8 py-3"
               >
                 <FontAwesomeIcon icon={faPhone} className="mr-2" />

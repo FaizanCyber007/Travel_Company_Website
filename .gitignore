@@ -15,6 +15,11 @@ node_modules/
 .env.development.local
 .env.test.local
 .env.production.local
+backend/.env
+
+# Backend uploads
+backend/uploads/
+backend/gallery.json
 
 # Runtime data
 pids

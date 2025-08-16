@@ -15,11 +15,21 @@ import {
   faShieldAlt,
   faAward,
   faFilter,
+  faEye,
+  faCheck,
+  faTimes,
 } from "@fortawesome/free-solid-svg-icons";
+import BookingModal from "../components/BookingModal";
 
 export default function Tours() {
   const [selectedDuration, setSelectedDuration] = useState("all");
   const [selectedType, setSelectedType] = useState("all");
+  const [selectedSort, setSelectedSort] = useState("featured");
+  const [bookingModal, setBookingModal] = useState({
+    isOpen: false,
+    tour: null,
+  });
+  const [selectedTour, setSelectedTour] = useState(null);
 
   const tourTypes = [
     { id: "all", name: "All Tours" },
@@ -186,24 +196,53 @@ export default function Tours() {
     },
   ];
 
-  const filteredTours = tours.filter((tour) => {
-    const matchesDuration =
-      selectedDuration === "all" ||
-      (selectedDuration === "short" && tour.duration.includes("1-3")) ||
-      (selectedDuration === "medium" &&
-        (tour.duration.includes("4") ||
-          tour.duration.includes("5") ||
-          tour.duration.includes("6") ||
-          tour.duration.includes("7"))) ||
-      (selectedDuration === "long" &&
-        (tour.duration.includes("8") ||
-          tour.duration.includes("9") ||
-          tour.duration.includes("10")));
+  // Add sorting functionality
+  const sortOptions = [
+    { id: "featured", name: "Featured" },
+    { id: "price-low", name: "Price: Low to High" },
+    { id: "price-high", name: "Price: High to Low" },
+    { id: "rating", name: "Highest Rated" },
+    { id: "duration", name: "Duration" },
+  ];
 
-    const matchesType = selectedType === "all" || tour.type === selectedType;
+  // Filter and sort tours
+  const filteredTours = tours
+    .filter((tour) => {
+      const typeMatch = selectedType === "all" || tour.type === selectedType;
+      const durationMatch =
+        selectedDuration === "all" ||
+        (selectedDuration === "short" && parseInt(tour.duration) <= 3) ||
+        (selectedDuration === "medium" &&
+          parseInt(tour.duration) >= 4 &&
+          parseInt(tour.duration) <= 7) ||
+        (selectedDuration === "long" && parseInt(tour.duration) >= 8);
+      return typeMatch && durationMatch;
+    })
+    .sort((a, b) => {
+      switch (selectedSort) {
+        case "price-low":
+          return a.price - b.price;
+        case "price-high":
+          return b.price - a.price;
+        case "rating":
+          return b.rating - a.rating;
+        case "duration":
+          return parseInt(a.duration) - parseInt(b.duration);
+        default:
+          return 0;
+      }
+    });
 
-    return matchesDuration && matchesType;
-  });
+  const openBookingModal = (tour) => {
+    setBookingModal({
+      isOpen: true,
+      tour: { name: tour.title, price: `$${tour.price}` },
+    });
+  };
+
+  const openTourDetails = (tour) => {
+    setSelectedTour(tour);
+  };
 
   return (
     <div className="min-h-screen bg-dark-900 pt-8">
@@ -225,19 +264,34 @@ export default function Tours() {
       {/* Filter Section */}
       <section className="py-8 bg-dark-800 border-b border-dark-700">
         <div className="container">
-          <div className="flex flex-col lg:flex-row gap-6 items-center">
+          <div className="grid lg:grid-cols-4 gap-6">
             <div className="flex items-center gap-2 text-white">
               <FontAwesomeIcon icon={faFilter} />
-              <span className="font-medium">Filter Tours:</span>
+              <span className="font-medium">Filter & Sort:</span>
+            </div>
+
+            {/* Sort Filter */}
+            <div>
+              <select
+                value={selectedSort}
+                onChange={(e) => setSelectedSort(e.target.value)}
+                className="w-full px-4 py-2 bg-dark-700 border border-dark-600 rounded-lg text-white text-sm focus:border-primary-500 focus:outline-none"
+              >
+                {sortOptions.map((option) => (
+                  <option key={option.id} value={option.id}>
+                    {option.name}
+                  </option>
+                ))}
+              </select>
             </div>
 
             {/* Tour Type Filter */}
             <div className="flex flex-wrap gap-2">
-              {tourTypes.map((type) => (
+              {tourTypes.slice(0, 4).map((type) => (
                 <button
                   key={type.id}
                   onClick={() => setSelectedType(type.id)}
-                  className={`px-4 py-2 rounded-lg transition-all ${
+                  className={`px-3 py-2 rounded-lg text-sm transition-all ${
                     selectedType === type.id
                       ? "bg-primary-600 text-white"
                       : "bg-dark-700 text-dark-300 hover:bg-dark-600"
@@ -254,9 +308,9 @@ export default function Tours() {
                 <button
                   key={duration.id}
                   onClick={() => setSelectedDuration(duration.id)}
-                  className={`px-4 py-2 rounded-lg transition-all ${
+                  className={`px-3 py-2 rounded-lg text-sm transition-all ${
                     selectedDuration === duration.id
-                      ? "bg-accent-600 text-dark-900"
+                      ? "bg-accent-600 text-dark-900 font-medium"
                       : "bg-dark-700 text-dark-300 hover:bg-dark-600"
                   }`}
                 >
@@ -264,6 +318,17 @@ export default function Tours() {
                 </button>
               ))}
             </div>
+          </div>
+
+          <div className="mt-4 text-center">
+            <span className="text-dark-300">
+              Showing{" "}
+              <span className="text-white font-medium">
+                {filteredTours.length}
+              </span>{" "}
+              of <span className="text-white font-medium">{tours.length}</span>{" "}
+              tours
+            </span>
           </div>
         </div>
       </section>
@@ -416,23 +481,24 @@ export default function Tours() {
                     </div>
 
                     {/* Actions */}
-                    <div className="flex gap-3 pt-4 border-t border-dark-700">
-                      <Link
-                        to={`/tours/${tour.id}`}
-                        className="flex-1 btn-primary text-center py-3"
+                    <div className="flex gap-2 pt-4 border-t border-dark-700">
+                      <button
+                        onClick={() => openBookingModal(tour)}
+                        className="flex-1 btn-primary text-center py-3 font-medium hover:shadow-lg transition-all"
                       >
                         <FontAwesomeIcon
                           icon={faCalendarAlt}
                           className="mr-2"
                         />
                         Book Now
-                      </Link>
-                      <Link
-                        to={`/tours/${tour.id}`}
-                        className="btn-secondary px-6 py-3"
+                      </button>
+                      <button
+                        onClick={() => openTourDetails(tour)}
+                        className="btn-secondary px-4 py-3 hover:shadow-lg transition-all"
                       >
+                        <FontAwesomeIcon icon={faEye} className="mr-1" />
                         Details
-                      </Link>
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -530,6 +596,145 @@ export default function Tours() {
           </div>
         </div>
       </section>
+
+      {/* Booking Modal */}
+      <BookingModal
+        isOpen={bookingModal.isOpen}
+        onClose={() => setBookingModal({ isOpen: false, tour: null })}
+        packageData={bookingModal.tour}
+      />
+
+      {/* Tour Details Modal */}
+      {selectedTour && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+          <div className="bg-dark-800 rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b border-dark-700 flex items-center justify-between">
+              <div>
+                <h2 className="text-2xl font-bold text-white">
+                  {selectedTour.title}
+                </h2>
+                <p className="text-dark-300 mt-1">{selectedTour.destination}</p>
+              </div>
+              <button
+                onClick={() => setSelectedTour(null)}
+                className="p-2 hover:bg-dark-700 rounded-lg transition-colors"
+              >
+                <FontAwesomeIcon icon={faTimes} className="text-dark-300" />
+              </button>
+            </div>
+
+            <div className="p-6">
+              <div className="grid lg:grid-cols-2 gap-8">
+                <div>
+                  <img
+                    src={selectedTour.img}
+                    alt={selectedTour.title}
+                    className="w-full h-64 object-cover rounded-lg mb-6"
+                  />
+
+                  <div className="grid grid-cols-2 gap-4 mb-6">
+                    <div className="bg-dark-700 p-4 rounded-lg text-center">
+                      <FontAwesomeIcon
+                        icon={faClock}
+                        className="text-primary-400 mb-2"
+                      />
+                      <div className="text-white font-medium">
+                        {selectedTour.duration}
+                      </div>
+                      <div className="text-dark-400 text-sm">Duration</div>
+                    </div>
+                    <div className="bg-dark-700 p-4 rounded-lg text-center">
+                      <FontAwesomeIcon
+                        icon={faUsers}
+                        className="text-primary-400 mb-2"
+                      />
+                      <div className="text-white font-medium">
+                        {selectedTour.groupSize}
+                      </div>
+                      <div className="text-dark-400 text-sm">Group Size</div>
+                    </div>
+                    <div className="bg-dark-700 p-4 rounded-lg text-center">
+                      <FontAwesomeIcon
+                        icon={faStar}
+                        className="text-primary-400 mb-2"
+                      />
+                      <div className="text-white font-medium">
+                        {selectedTour.rating}/5
+                      </div>
+                      <div className="text-dark-400 text-sm">
+                        {selectedTour.reviews} Reviews
+                      </div>
+                    </div>
+                    <div className="bg-dark-700 p-4 rounded-lg text-center">
+                      <div className="text-accent-400 font-bold text-lg">
+                        ${selectedTour.price}
+                      </div>
+                      <div className="text-dark-400 text-sm">Per Person</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="text-xl font-bold text-white mb-4">
+                    Tour Highlights
+                  </h3>
+                  <div className="space-y-2 mb-6">
+                    {selectedTour.highlights.map((highlight, index) => (
+                      <div
+                        key={index}
+                        className="flex items-center gap-2 text-dark-300"
+                      >
+                        <FontAwesomeIcon
+                          icon={faCheck}
+                          className="text-green-400 text-sm"
+                        />
+                        {highlight}
+                      </div>
+                    ))}
+                  </div>
+
+                  <h3 className="text-xl font-bold text-white mb-4">
+                    What's Included
+                  </h3>
+                  <div className="space-y-2 mb-6">
+                    {selectedTour.includes.map((item, index) => (
+                      <div
+                        key={index}
+                        className="flex items-center gap-2 text-dark-300"
+                      >
+                        <FontAwesomeIcon
+                          icon={faCheck}
+                          className="text-green-400 text-sm"
+                        />
+                        {item}
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => {
+                        setSelectedTour(null);
+                        openBookingModal(selectedTour);
+                      }}
+                      className="flex-1 btn-primary py-3 font-medium"
+                    >
+                      <FontAwesomeIcon icon={faCalendarAlt} className="mr-2" />
+                      Book This Tour
+                    </button>
+                    <button
+                      onClick={() => setSelectedTour(null)}
+                      className="px-6 py-3 border border-dark-600 text-dark-300 rounded-lg hover:bg-dark-700 transition-colors"
+                    >
+                      Close
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -56,40 +56,28 @@ export default function Footer() {
 
   const socialLinks = [
     {
-      href: "https://facebook.com",
+      href: "https://www.facebook.com/faizan.javed.7758235",
       icon: faFacebook,
       label: "Facebook",
       color: "hover:text-blue-500",
     },
     {
-      href: "https://twitter.com",
+      href: "https://x.com/FaizanJaved246",
       icon: faTwitter,
       label: "Twitter",
       color: "hover:text-blue-400",
     },
     {
-      href: "https://instagram.com",
+      href: "https://www.instagram.com/faizanjaved246/",
       icon: faInstagram,
       label: "Instagram",
       color: "hover:text-pink-500",
     },
     {
-      href: "https://linkedin.com",
+      href: "https://www.linkedin.com/in/faizan-javed-b0267426a/",
       icon: faLinkedin,
       label: "LinkedIn",
       color: "hover:text-blue-600",
-    },
-    {
-      href: "https://youtube.com",
-      icon: faYoutube,
-      label: "YouTube",
-      color: "hover:text-red-500",
-    },
-    {
-      href: "https://tiktok.com",
-      icon: faTiktok,
-      label: "TikTok",
-      color: "hover:text-gray-800",
     },
   ];
 
@@ -160,14 +148,14 @@ export default function Footer() {
                     icon={faPhone}
                     className="text-primary-400"
                   />
-                  <span>+1 (234) 567-890</span>
+                  <span>+92 332 043 6737</span>
                 </div>
                 <div className="flex items-center gap-3 text-dark-300">
                   <FontAwesomeIcon
                     icon={faEnvelope}
                     className="text-primary-400"
                   />
-                  <span>Internshippakistan.carrer@gmail.com</span>
+                  <span>faizanjaved246@gmail.com</span>
                 </div>
                 <div className="flex items-start gap-3 text-dark-300">
                   <FontAwesomeIcon

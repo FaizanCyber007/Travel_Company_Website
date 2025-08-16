@@ -7,7 +7,6 @@ import {
   faCalendarAlt,
   faUsers,
 } from "@fortawesome/free-solid-svg-icons";
-import { Link } from "react-router-dom";
 
 export default function DestinationCard({
   title,
@@ -16,6 +15,9 @@ export default function DestinationCard({
   price,
   rating,
   description,
+  duration,
+  onBook,
+  onViewDetails,
 }) {
   return (
     <article className="card card-hover group relative overflow-hidden">
@@ -33,7 +35,10 @@ export default function DestinationCard({
           <button className="w-10 h-10 bg-dark-800/80 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-primary-500 transition-colors">
             <FontAwesomeIcon icon={faHeart} className="text-sm" />
           </button>
-          <button className="w-10 h-10 bg-dark-800/80 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-primary-500 transition-colors">
+          <button
+            onClick={onViewDetails}
+            className="w-10 h-10 bg-dark-800/80 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-primary-500 transition-colors"
+          >
             <FontAwesomeIcon icon={faEye} className="text-sm" />
           </button>
         </div>
@@ -48,19 +53,25 @@ export default function DestinationCard({
 
         {/* Quick Actions */}
         <div className="absolute bottom-4 left-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          <Link
-            to={`/destinations/${title.toLowerCase().replace(/\s+/g, "-")}`}
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              onBook?.();
+            }}
             className="flex-1 btn-primary text-center text-sm py-2"
           >
             <FontAwesomeIcon icon={faCalendarAlt} className="mr-1" />
             Book Now
-          </Link>
-          <Link
-            to={`/destinations/${title.toLowerCase().replace(/\s+/g, "-")}`}
+          </button>
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              onViewDetails?.();
+            }}
             className="btn-secondary px-4 py-2"
           >
             <FontAwesomeIcon icon={faEye} />
-          </Link>
+          </button>
         </div>
       </div>
 
@@ -99,16 +110,16 @@ export default function DestinationCard({
             </div>
             <div className="flex items-center gap-1">
               <FontAwesomeIcon icon={faCalendarAlt} />
-              <span>7 Days</span>
+              <span>{duration || "7 Days"}</span>
             </div>
           </div>
 
-          <Link
-            to={`/destinations/${title.toLowerCase().replace(/\s+/g, "-")}`}
+          <button
+            onClick={onViewDetails}
             className="text-primary-400 hover:text-primary-300 font-medium text-sm transition-colors"
           >
             Learn More →
-          </Link>
+          </button>
         </div>
       </div>
     </article>

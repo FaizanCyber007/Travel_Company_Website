@@ -1,5 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import PhotoUploadForm from "../components/PhotoUploadForm";
 import {
   faImages,
   faPlay,
@@ -17,6 +19,9 @@ export default function Gallery() {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [currentImage, setCurrentImage] = useState(0);
+  const [visibleCount, setVisibleCount] = useState(10);
+  const [uploadModalOpen, setUploadModalOpen] = useState(false);
+  const [userPhotos, setUserPhotos] = useState([]);
 
   const categories = [
     { id: "all", name: "All Photos" },
@@ -148,11 +153,136 @@ export default function Gallery() {
       location: "India",
       type: "image",
     },
+    {
+      id: 16,
+      src: "https://images.unsplash.com/photo-1469474968028-56623f02e42e?q=80&w=800&auto=format&fit=crop",
+      category: "destinations",
+      title: "Forest Trail",
+      location: "Norway",
+      type: "image",
+    },
+    {
+      id: 17,
+      src: "https://images.unsplash.com/photo-1571896349842-33c89424de2d?q=80&w=800&auto=format&fit=crop",
+      category: "hotels",
+      title: "City Hotel",
+      location: "Singapore",
+      type: "image",
+    },
+    {
+      id: 18,
+      src: "https://images.unsplash.com/photo-1544198365-f5d60b6d8190?q=80&w=800&auto=format&fit=crop",
+      category: "activities",
+      title: "Hiking Adventure",
+      location: "Peru",
+      type: "image",
+    },
+    {
+      id: 19,
+      src: "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?q=80&w=800&auto=format&fit=crop",
+      category: "food",
+      title: "Street Food",
+      location: "Vietnam",
+      type: "image",
+    },
+    {
+      id: 20,
+      src: "https://images.unsplash.com/photo-1493246507139-91e8fad9978e?q=80&w=800&auto=format&fit=crop",
+      category: "destinations",
+      title: "Sunset Beach",
+      location: "Hawaii",
+      type: "image",
+    },
+    {
+      id: 21,
+      src: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?q=80&w=800&auto=format&fit=crop",
+      category: "hotels",
+      title: "Luxury Suite",
+      location: "Dubai",
+      type: "image",
+    },
+    {
+      id: 22,
+      src: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?q=80&w=800&auto=format&fit=crop",
+      category: "activities",
+      title: "Kayaking",
+      location: "New Zealand",
+      type: "image",
+    },
+    {
+      id: 23,
+      src: "https://images.unsplash.com/photo-1551632811-561732d1e306?q=80&w=800&auto=format&fit=crop",
+      category: "culture",
+      title: "Art Gallery",
+      location: "Italy",
+      type: "image",
+    },
+    {
+      id: 24,
+      src: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?q=80&w=800&auto=format&fit=crop",
+      category: "food",
+      title: "Traditional Feast",
+      location: "Mexico",
+      type: "image",
+    },
+    {
+      id: 25,
+      src: "https://images.unsplash.com/photo-1536431311719-398b6704d4cc?q=80&w=800&auto=format&fit=crop",
+      category: "destinations",
+      title: "Desert Landscape",
+      location: "Morocco",
+      type: "image",
+    },
   ];
 
-  const filteredItems = galleryItems.filter(
+  // Fetch user-uploaded photos from backend
+  useEffect(() => {
+    const fetchUserPhotos = async () => {
+      try {
+        const response = await fetch("http://localhost:5002/api/gallery");
+        if (response.ok) {
+          const data = await response.json();
+          setUserPhotos(data.data || []);
+        }
+      } catch (error) {
+        console.error("Error fetching user photos:", error);
+      }
+    };
+
+    fetchUserPhotos();
+  }, []);
+
+  // Combine static gallery items with user-uploaded photos
+  const allGalleryItems = [
+    ...galleryItems,
+    ...userPhotos.map((photo) => ({
+      id: photo.id,
+      src: photo.imageUrl || `http://localhost:5002${photo.src}`,
+      category: photo.category,
+      title: photo.title,
+      location: photo.location,
+      type: photo.type || "image",
+      description: photo.description,
+      uploadDate: photo.uploadDate,
+    })),
+  ];
+
+  const filteredItems = allGalleryItems.filter(
     (item) => selectedCategory === "all" || item.category === selectedCategory
   );
+
+  const visibleItems = filteredItems.slice(0, visibleCount);
+  const hasMoreItems = visibleCount < filteredItems.length;
+
+  const loadMoreItems = () => {
+    setVisibleCount((prev) => prev + 10);
+  };
+
+  // Reset visible count when category changes
+  const handleCategoryChange = (categoryId) => {
+    setSelectedCategory(categoryId);
+    setVisibleCount(10);
+  };
 
   const openLightbox = (index) => {
     setCurrentImage(index);
@@ -186,6 +316,13 @@ export default function Gallery() {
               Explore stunning photography from our travelers around the world.
               Get inspired for your next adventure.
             </p>
+            <Link
+              to="/gallery/upload"
+              className="btn-primary inline-flex items-center gap-2 px-6 py-3"
+            >
+              <FontAwesomeIcon icon={faImages} />
+              Share Your Photos
+            </Link>
           </div>
         </div>
       </section>
@@ -205,7 +342,7 @@ export default function Gallery() {
               {categories.map((category) => (
                 <button
                   key={category.id}
-                  onClick={() => setSelectedCategory(category.id)}
+                  onClick={() => handleCategoryChange(category.id)}
                   className={`px-4 py-2 rounded-lg transition-all ${
                     selectedCategory === category.id
                       ? "bg-primary-600 text-white"
@@ -218,7 +355,7 @@ export default function Gallery() {
             </div>
 
             <div className="text-dark-400 text-sm">
-              {filteredItems.length} photos
+              Showing {visibleItems.length} of {filteredItems.length} photos
             </div>
           </div>
         </div>
@@ -228,7 +365,7 @@ export default function Gallery() {
       <section className="py-12 bg-dark-900">
         <div className="container">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredItems.map((item, index) => (
+            {visibleItems.map((item, index) => (
               <div
                 key={item.id}
                 className="group relative aspect-square overflow-hidden rounded-lg cursor-pointer card-hover"
@@ -276,12 +413,15 @@ export default function Gallery() {
           </div>
 
           {/* Load More Button */}
-          <div className="text-center mt-12">
-            <button className="btn-primary px-8 py-3">
-              <FontAwesomeIcon icon={faImages} className="mr-2" />
-              Load More Photos
-            </button>
-          </div>
+          {hasMoreItems && (
+            <div className="text-center mt-12">
+              <button onClick={loadMoreItems} className="btn-primary px-8 py-3">
+                <FontAwesomeIcon icon={faImages} className="mr-2" />
+                Load More Photos ({filteredItems.length - visibleCount}{" "}
+                remaining)
+              </button>
+            </div>
+          )}
         </div>
       </section>
 
@@ -320,7 +460,12 @@ export default function Gallery() {
               Join our community of travelers and share your amazing journey
               photos with the world.
             </p>
-            <button className="btn-accent px-8 py-3">Upload Your Photos</button>
+            <button
+              className="btn-accent px-8 py-3"
+              onClick={() => setUploadModalOpen(true)}
+            >
+              Upload Your Photos
+            </button>
           </div>
         </div>
       </section>
@@ -389,6 +534,29 @@ export default function Gallery() {
             {/* Counter */}
             <div className="absolute top-6 left-6 bg-dark-800/80 backdrop-blur-sm rounded-lg px-4 py-2 text-white">
               {currentImage + 1} / {filteredItems.length}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Upload Modal */}
+      {uploadModalOpen && (
+        <div className="fixed inset-0 bg-black/75 z-50 flex items-center justify-center p-4">
+          <div className="bg-dark-800 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-dark-800 border-b border-dark-700 px-6 py-4 flex items-center justify-between rounded-t-2xl">
+              <h2 className="text-xl font-bold text-white">
+                Upload Your Photos
+              </h2>
+              <button
+                onClick={() => setUploadModalOpen(false)}
+                className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-dark-700 text-dark-300 hover:text-white transition-colors"
+              >
+                <FontAwesomeIcon icon={faTimes} />
+              </button>
+            </div>
+
+            <div className="p-6">
+              <PhotoUploadForm onClose={() => setUploadModalOpen(false)} />
             </div>
           </div>
         </div>
