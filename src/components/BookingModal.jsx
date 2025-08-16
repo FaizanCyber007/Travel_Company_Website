@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { getApiUrl } from "../config/api";
 import {
   faTimes,
   faCalendarAlt,
@@ -53,7 +54,8 @@ export default function BookingModal({ isOpen, onClose, packageData }) {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch("http://localhost:5002/api/booking", {
+      const apiUrl = await getApiUrl();
+      const response = await fetch(`${apiUrl}/api/booking`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

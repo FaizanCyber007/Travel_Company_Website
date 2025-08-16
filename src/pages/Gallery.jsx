@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import PhotoUploadForm from "../components/PhotoUploadForm";
+import { getApiUrl } from "../config/api";
 import {
   faImages,
   faPlay,
@@ -239,13 +240,17 @@ export default function Gallery() {
   useEffect(() => {
     const fetchUserPhotos = async () => {
       try {
-        const response = await fetch("http://localhost:5002/api/gallery");
+        const apiUrl = await getApiUrl();
+        const response = await fetch(`${apiUrl}/api/gallery`);
         if (response.ok) {
           const data = await response.json();
           setUserPhotos(data.data || []);
         }
       } catch (error) {
         console.error("Error fetching user photos:", error);
+        // Try to reset API URL and retry once
+        const { resetApiUrl } = await import("../config/api");
+        resetApiUrl();
       }
     };
 
@@ -257,7 +262,7 @@ export default function Gallery() {
     ...galleryItems,
     ...userPhotos.map((photo) => ({
       id: photo.id,
-      src: photo.imageUrl || `http://localhost:5002${photo.src}`,
+      src: photo.imageUrl || photo.src, // Use imageUrl if available, otherwise use src as is
       category: photo.category,
       title: photo.title,
       location: photo.location,

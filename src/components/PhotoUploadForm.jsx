@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { getApiUrl } from "../config/api";
 import {
   faCloudUpload,
   faImage,
@@ -68,6 +69,7 @@ export default function PhotoUploadForm({ onClose }) {
     setUploading(true);
 
     try {
+      const apiUrl = await getApiUrl();
       const formDataToSend = new FormData();
       formDataToSend.append("title", formData.title);
       formDataToSend.append("location", formData.location);
@@ -78,7 +80,7 @@ export default function PhotoUploadForm({ onClose }) {
         formDataToSend.append("photos", file);
       });
 
-      const response = await fetch("http://localhost:5002/api/gallery/upload", {
+      const response = await fetch(`${apiUrl}/api/gallery/upload`, {
         method: "POST",
         body: formDataToSend,
       });
